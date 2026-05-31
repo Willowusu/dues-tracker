@@ -2,6 +2,10 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 
+router.get('/', (req, res) => {
+    res.render('login', { error: null });
+});
+
 router.get('/login', (req, res) => {
     if (req.session.userId) return res.redirect('/dashboard');
     res.render('login', { error: null });
