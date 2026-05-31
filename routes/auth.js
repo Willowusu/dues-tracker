@@ -40,6 +40,12 @@ router.post('/login', async (req, res) => {
 
 
         try {
+            if(phone === '0000000000') {
+                console.log(`\n===========================================`);
+                console.log(`[SIMULATED SMS] OTP for ${phone} is: ${otp}`);
+                console.log(`===========================================\n`);
+                return res.redirect(`/verify-otp?phone=${encodeURIComponent(phone)}`);
+            }
             const message = `Your one-time PIN Code is ${otp}. Please type this code in your app to log in.`;
 
             const response = await fetch('https://sms.arkesel.com/api/v2/sms/send', {
