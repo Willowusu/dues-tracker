@@ -1,0 +1,464 @@
+<%- include('partials/header') %>
+
+    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 w-full">
+        <!-- Top Title Hub -->
+        <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between justify-start gap-4">
+            <div class="space-y-1">
+                <h1 class="text-2xl font-semibold text-zinc-900 tracking-tight">Admin Control Panel</h1>
+                <p class="text-sm text-muted-foreground">Manage members and log structural payment balances.</p>
+            </div>
+            <!-- TOP ACTION HUB (Mobile-First Header) -->
+            <div class="w-full sm:w-auto flex flex-col min-[400px]:flex-row gap-2">
+                <button type="button" onclick="toggleModal('addMemberModal', true)"
+                    class="w-full sm:w-auto inline-flex items-center justify-center py-2 px-4 border border-transparent rounded-lg text-xs font-medium text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2 transition-all shadow-sm">
+                    <svg class="w-3.5 h-3.5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                    Add New Member
+                </button>
+                <button type="button" onclick="toggleModal('recordPaymentModal', true)"
+                    class="w-full sm:w-auto inline-flex items-center justify-center py-2 px-4 border border-zinc-200 rounded-lg text-xs font-medium text-zinc-900 bg-background hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2 transition-all shadow-sm">
+                    <svg class="w-3.5 h-3.5 mr-1.5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Record a Payment
+                </button>
+            </div>
+        </div>
+
+        <!-- Feedback Alert Messages -->
+        <% if (success) { %>
+            <div class="mb-6 bg-emerald-50/50 border border-emerald-200 p-3.5 rounded-lg flex items-start gap-2.5">
+                <svg class="h-4 w-4 text-emerald-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p class="text-xs text-emerald-800 font-medium leading-relaxed"><%= success %></p>
+            </div>
+        <% } %>
+
+        <% if (error) { %>
+            <div class="mb-6 bg-destructive/5 border border-red-200 p-3.5 rounded-lg flex items-start gap-2.5">
+                <svg class="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <p class="text-xs text-red-700 font-medium leading-relaxed"><%= error %></p>
+            </div>
+        <% } %>
+
+        <!-- SECTION A: Global Membership Directory Card -->
+        <div class="mt-6 bg-background rounded-xl border border-zinc-200 shadow-[0_1px_2px_rgba(0,0,0,0.02)] overflow-hidden">
+            <div class="px-5 py-4 border-b border-zinc-100 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-zinc-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                    <h2 class="text-sm font-medium text-zinc-900">Top Membership Balances</h2>
+                </div>
+                <a href="/admin/members" class="inline-flex items-center text-xs font-medium text-zinc-500 hover:text-zinc-900 transition-colors">
+                    View All <span class="ml-1 font-mono">&rarr;</span>
+                </a>
+            </div>
+
+            <!-- Desktop Table View -->
+            <div class="hidden md:block overflow-x-auto">
+                <table class="min-w-full divide-y divide-zinc-200 text-left">
+                    <thead class="bg-zinc-50/70">
+                        <tr>
+                            <th scope="col" class="px-5 py-3 text-xs font-medium text-muted-foreground tracking-tight">Member</th>
+                            <th scope="col" class="px-5 py-3 text-xs font-medium text-muted-foreground tracking-tight">Join Date</th>
+                            <th scope="col" class="px-5 py-3 text-xs font-medium text-muted-foreground tracking-tight text-center">Weeks</th>
+                            <th scope="col" class="px-5 py-3 text-xs font-medium text-muted-foreground tracking-tight text-right">Billed</th>
+                            <th scope="col" class="px-5 py-3 text-xs font-medium text-muted-foreground tracking-tight text-right">Paid</th>
+                            <th scope="col" class="px-5 py-3 text-xs font-medium text-muted-foreground tracking-tight text-right">Balance Owed</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-background divide-y divide-zinc-100">
+                        <% if (membersReport && membersReport.length > 0) { %>
+                            <% membersReport.forEach(member => { %>
+                                <tr class="hover:bg-zinc-50/50 transition-colors text-sm">
+                                    <td class="px-5 py-3.5 whitespace-nowrap">
+                                        <div class="font-medium text-zinc-900 flex items-center gap-2">
+                                            <%= member.name %>
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium tracking-wide <%= member.status === 'Active' ? 'bg-zinc-100 text-zinc-800' : 'bg-zinc-50 text-zinc-400 border border-zinc-200' %>">
+                                                <%= member.status %>
+                                            </span>
+                                        </div>
+                                        <div class="text-xs font-mono text-muted-foreground mt-0.5">
+                                            <%= member.userId ? member.userId.phone : 'N/A' %>
+                                        </div>
+                                    </td>
+                                    <td class="px-5 py-3.5 whitespace-nowrap text-zinc-500 font-mono text-xs">
+                                        <%= new Date(member.joinDate).toISOString().split('T')[0] %>
+                                    </td>
+                                    <td class="px-5 py-3.5 whitespace-nowrap text-zinc-600 text-center font-medium">
+                                        <%= member.computed.weeksPassed %> wks
+                                    </td>
+                                    <td class="px-5 py-3.5 whitespace-nowrap text-zinc-900 text-right font-mono text-xs">
+                                        GH₵<%= member.computed.totalBilled.toFixed(2) %>
+                                    </td>
+                                    <td class="px-5 py-3.5 whitespace-nowrap text-zinc-900 text-right font-mono text-xs">
+                                        GH₵<%= member.computed.totalPaid.toFixed(2) %>
+                                    </td>
+                                    <td class="px-5 py-3.5 whitespace-nowrap text-right font-medium">
+                                        <% if (member.computed.balanceOwed > 0) { %>
+                                            <span class="text-red-600 font-mono text-xs">GH₵<%= member.computed.balanceOwed.toFixed(2) %></span>
+                                        <% } else { %>
+                                            <span class="text-zinc-400 text-xs tracking-normal">Cleared</span>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="6" class="px-5 py-8 text-center text-xs text-muted-foreground">No matching directory records located.</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Mobile Card Stack View -->
+            <div class="block md:hidden divide-y divide-zinc-100 bg-background">
+                <% if (membersReport && membersReport.length > 0) { %>
+                    <% membersReport.forEach(member => { %>
+                        <div class="p-4 space-y-3">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="text-sm font-medium text-zinc-900"><%= member.name %></h3>
+                                    <p class="text-xs font-mono text-muted-foreground mt-0.5"><%= member.userId ? member.userId.phone : 'N/A' %></p>
+                                </div>
+                                <span class="px-1.5 py-0.5 rounded text-[10px] font-medium tracking-tight <%= member.status === 'Active' ? 'bg-zinc-100 text-zinc-800' : 'bg-zinc-50 text-zinc-400' %>">
+                                    <%= member.status %>
+                                </span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-y-1.5 text-xs">
+                                <div class="text-muted-foreground">Join Date</div>
+                                <div class="text-right font-mono text-zinc-900"><%= new Date(member.joinDate).toISOString().split('T')[0] %></div>
+                                <div class="text-muted-foreground">Calculated Period</div>
+                                <div class="text-right text-zinc-900"><%= member.computed.weeksPassed %> wks</div>
+                                <div class="text-muted-foreground">Total Billed</div>
+                                <div class="text-right font-mono text-zinc-900">GH₵<%= member.computed.totalBilled.toFixed(2) %></div>
+                                <div class="text-muted-foreground">Total Paid</div>
+                                <div class="text-right font-mono text-zinc-900">GH₵<%= member.computed.totalPaid.toFixed(2) %></div>
+                            </div>
+                            <div class="pt-2.5 border-t border-zinc-100 flex justify-between items-center">
+                                <span class="text-xs font-medium text-zinc-700">Balance Status</span>
+                                <% if (member.computed.balanceOwed > 0) { %>
+                                    <span class="text-xs font-mono font-semibold text-red-600 bg-red-50/50 border border-red-100 px-2 py-0.5 rounded">GH₵<%= member.computed.balanceOwed.toFixed(2) %></span>
+                                <% } else { %>
+                                    <span class="text-xs font-medium text-zinc-500 bg-zinc-50 border border-zinc-200 px-2 py-0.5 rounded">Cleared</span>
+                                <% } %>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <div class="p-6 text-center text-xs text-muted-foreground">No membership profiles found.</div>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- SECTION B: Recent Payments Ledger Card -->
+        <div class="mt-6 mb-8 bg-background rounded-xl border border-zinc-200 shadow-[0_1px_2px_rgba(0,0,0,0.02)] overflow-hidden">
+            <div class="px-5 py-4 border-b border-zinc-100 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-zinc-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                    </svg>
+                    <h2 class="text-sm font-medium text-zinc-900">Recent Payments Ledger</h2>
+                </div>
+                <a href="/admin/payments" class="inline-flex items-center text-xs font-medium text-zinc-500 hover:text-zinc-900 transition-colors">
+                    View All <span class="ml-1 font-mono">&rarr;</span>
+                </a>
+            </div>
+
+            <!-- Desktop Ledger -->
+            <div class="hidden md:block overflow-x-auto">
+                <table class="min-w-full divide-y divide-zinc-200 text-left">
+                    <thead class="bg-zinc-50/70">
+                        <tr>
+                            <th scope="col" class="px-5 py-3 text-xs font-medium text-muted-foreground tracking-tight">Date</th>
+                            <th scope="col" class="px-5 py-3 text-xs font-medium text-muted-foreground tracking-tight">Member Name</th>
+                            <th scope="col" class="px-5 py-3 text-xs font-medium text-muted-foreground tracking-tight text-center">Reference Memo</th>
+                            <th scope="col" class="px-5 py-3 text-xs font-medium text-muted-foreground tracking-tight text-right">Amount Paid</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-background divide-y divide-zinc-100">
+                        <% if (recentPayments && recentPayments.length > 0) { %>
+                            <% recentPayments.forEach(payment => { %>
+                                <tr class="hover:bg-zinc-50/50 transition-colors text-sm">
+                                    <td class="px-5 py-3 whitespace-nowrap text-zinc-500 text-xs font-mono">
+                                        <%= new Date(payment.paymentDate).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) %>
+                                    </td>
+                                    <td class="px-5 py-3 whitespace-nowrap font-medium text-zinc-900">
+                                        <%= payment.memberName %>
+                                    </td>
+                                    <td class="px-5 py-3 whitespace-nowrap text-center">
+                                        <span class="bg-zinc-100 text-zinc-800 text-[11px] font-mono px-2 py-0.5 rounded">
+                                            <%= payment.reference || 'N/A' %>
+                                        </span>
+                                    </td>
+                                    <td class="px-5 py-3 whitespace-nowrap font-mono text-xs font-medium text-zinc-900 text-right">
+                                        GH₵<%= payment.amountPaid.toFixed(2) %>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="4" class="px-5 py-8 text-center text-xs text-muted-foreground">No tracked payments logged to ledger yet.</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Mobile Ledger Statement -->
+            <div class="block md:hidden divide-y divide-zinc-100 bg-background">
+                <% if (recentPayments && recentPayments.length > 0) { %>
+                    <% recentPayments.forEach(payment => { %>
+                        <div class="p-4 flex justify-between items-center text-sm">
+                            <div class="space-y-0.5">
+                                <p class="font-medium text-zinc-900"><%= payment.memberName %></p>
+                                <p class="text-xs text-muted-foreground">
+                                    <span class="font-mono"><%= new Date(payment.paymentDate).toLocaleDateString() %></span> &bull; Ref: <span class="font-mono bg-zinc-50 text-zinc-700 px-1 rounded border border-zinc-100"><%= payment.reference || 'None' %></span>
+                                </p>
+                            </div>
+                            <div class="text-right font-mono font-medium text-zinc-900">
+                                GH₵<%= payment.amountPaid.toFixed(2) %>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <div class="p-6 text-center text-xs text-muted-foreground">No logged interactions.</div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- Add Member Modal -->
+    <div id="addMemberModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <!-- Smooth overlay background -->
+            <div class="fixed inset-0 bg-zinc-950/40 backdrop-blur-[2px] transition-opacity" aria-hidden="true" onclick="toggleModal('addMemberModal', false)"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+            <!-- Modal Card Structure -->
+            <div class="inline-block align-bottom bg-background border border-zinc-200 rounded-xl text-left overflow-hidden shadow-lg transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
+                <!-- Modal Head -->
+                <div class="px-6 py-4 border-b border-zinc-100 flex justify-between items-center">
+                    <h3 class="text-base font-semibold tracking-tight text-zinc-900">Register New Member</h3>
+                    <button type="button" onclick="toggleModal('addMemberModal', false)" class="text-zinc-400 hover:text-zinc-900 transition-colors focus:outline-none">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Modal Body -->
+                <form action="/admin/add-member" method="POST" class="p-6 space-y-4">
+                    <div class="space-y-4">
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-medium text-zinc-700 tracking-tight block">Phone Number (Login ID) *</label>
+                            <input type="text" name="phone" required class="w-full rounded-lg border border-zinc-200 bg-transparent px-3 py-2 text-sm text-zinc-900 outline-none transition-all placeholder:text-zinc-400 focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-medium text-zinc-700 tracking-tight block">Full Name *</label>
+                            <input type="text" name="name" required class="w-full rounded-lg border border-zinc-200 bg-transparent px-3 py-2 text-sm text-zinc-900 outline-none transition-all placeholder:text-zinc-400 focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-1.5">
+                                <label class="text-xs font-medium text-zinc-700 tracking-tight block">Gender *</label>
+                                <select name="gender" required class="w-full rounded-lg border border-zinc-200 bg-transparent px-3 py-2 text-sm text-zinc-900 outline-none transition-all focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400">
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-xs font-medium text-zinc-700 tracking-tight block">Date of Birth *</label>
+                                <input type="date" name="dob" required class="w-full rounded-lg border border-zinc-200 bg-transparent px-3 py-2 text-sm text-zinc-900 outline-none transition-all focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400">
+                            </div>
+                        </div>
+                          <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-1.5">
+                                <label class="text-xs font-medium text-zinc-700 tracking-tight block">Baptized</label>
+                                    <select name="baptismStatus" required class="w-full rounded-lg border border-zinc-200 bg-transparent px-3 py-2 text-sm text-zinc-900 outline-none transition-all focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400">
+                                        <option value="Baptized">Yes</option>
+                                        <option value="Unbaptized">No</option>
+                                    </select>
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-xs font-medium text-zinc-700 tracking-tight block">Communicant</label>
+                                <select name="communicant" required class="w-full rounded-lg border border-zinc-200 bg-transparent px-3 py-2 text-sm text-zinc-900 outline-none transition-all focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400">
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-medium text-zinc-700 tracking-tight block">Join Date *</label>
+                            <input type="date" name="joinDate" required class="w-full rounded-lg border border-zinc-200 bg-transparent px-3 py-2 text-sm text-zinc-900 outline-none transition-all focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400">
+                            <p class="text-[11px] text-muted-foreground leading-normal">Dictates when structural tracking and dues metrics initiate.</p>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-medium text-zinc-700 tracking-tight block">Residential Address *</label>
+                            <input type="text" name="residentialAddress" required class="w-full rounded-lg border border-zinc-200 bg-transparent px-3 py-2 text-sm text-zinc-900 outline-none transition-all placeholder:text-zinc-400 focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-1.5">
+                                <label class="text-xs font-medium text-zinc-700 tracking-tight block">Email</label>
+                                <input type="email" name="email" class="w-full rounded-lg border border-zinc-200 bg-transparent px-3 py-2 text-sm text-zinc-900 outline-none transition-all placeholder:text-zinc-400 focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-xs font-medium text-zinc-700 tracking-tight block">Occupation</label>
+                                <input type="text" name="occupation" class="w-full rounded-lg border border-zinc-200 bg-transparent px-3 py-2 text-sm text-zinc-900 outline-none transition-all placeholder:text-zinc-400 focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400">
+                            </div>
+                        </div>
+                         <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-1.5">
+                                <label class="text-xs font-medium text-zinc-700 tracking-tight block">Place Of Work</label>
+                                <input type="text" name="placeOfWork" class="w-full rounded-lg border border-zinc-200 bg-transparent px-3 py-2 text-sm text-zinc-900 outline-none transition-all placeholder:text-zinc-400 focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-xs font-medium text-zinc-700 tracking-tight block">Previous Church</label>
+                                <input type="text" name="previousChurch" class="w-full rounded-lg border border-zinc-200 bg-transparent px-3 py-2 text-sm text-zinc-900 outline-none transition-all placeholder:text-zinc-400 focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Form Actions Area -->
+                    <div class="mt-6 pt-4 border-t border-zinc-100 flex justify-end gap-2">
+                        <button type="button" onclick="toggleModal('addMemberModal', false)" class="py-2 px-4 border border-zinc-200 rounded-lg text-xs font-medium text-zinc-900 bg-background hover:bg-zinc-50 transition-all focus:outline-none">
+                            Cancel
+                        </button>
+                        <button type="submit" class="py-2 px-4 border border-transparent rounded-lg text-xs font-medium text-primary-foreground bg-primary hover:bg-primary/90 transition-all focus:outline-none shadow-sm">
+                            Confirm Registration
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Record Payment Modal -->
+     <!-- Record Payment Modal -->
+    <div id="recordPaymentModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <!-- Smooth overlay background -->
+            <div class="fixed inset-0 bg-zinc-950/40 backdrop-blur-[2px] transition-opacity" aria-hidden="true" onclick="toggleModal('recordPaymentModal', false)"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+            <!-- Modal Card Structure -->
+            <div class="inline-block align-bottom bg-background border border-zinc-200 rounded-xl text-left overflow-hidden shadow-lg transform transition-all sm:my-8 sm:align-middle sm:max-w-md w-full">
+                <!-- Modal Head -->
+                <div class="px-6 py-4 border-b border-zinc-100 flex justify-between items-center">
+                    <h3 class="text-base font-semibold tracking-tight text-zinc-900">Record a Member Payment</h3>
+                    <button type="button" onclick="toggleModal('recordPaymentModal', false)" class="text-zinc-400 hover:text-zinc-900 transition-colors focus:outline-none">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Modal Body -->
+                <form action="/admin/record-payment" method="POST" class="p-6 space-y-4">
+                    <div class="space-y-4">
+                        <!-- Select Member Dropdown -->
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-medium text-zinc-700 tracking-tight block">Select Member *</label>
+                            <select name="memberId" required class="w-full rounded-lg border border-zinc-200 bg-transparent px-3 py-2 text-sm text-zinc-900 outline-none transition-all focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400">
+                                <option value="" disabled selected>Choose a member profile...</option>
+                                <% if (locals.membersReport && membersReport.length > 0) { %>
+                                    <% membersReport.forEach(member => { %>
+                                        <option value="<%= member._id %>"><%= member.name %> (<%= member.userId ? member.userId.phone : 'N/A' %>)</option>
+                                    <% }) %>
+                                <% } %>
+                            </select>
+                        </div>
+
+                        <!-- Amount Paid Input -->
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-medium text-zinc-700 tracking-tight block">Amount Paid (GH₵) *</label>
+                            <div class="relative rounded-md">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-xs font-medium text-zinc-400 font-mono">GH₵</span>
+                                </div>
+                                <input 
+                                    type="number" 
+                                    name="amountPaid" 
+                                    step="0.01" 
+                                    min="0.01" 
+                                    required 
+                                    placeholder="0.00" 
+                                    class="pl-14 block w-full rounded-lg border border-zinc-200 bg-transparent text-sm font-mono text-zinc-900 py-2 px-3 outline-none transition-all placeholder:text-zinc-300 focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400"
+                                >
+                            </div>
+                        </div>
+
+                        <!-- Payment Date Picker -->
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-medium text-zinc-700 tracking-tight block">Payment Date *</label>
+                            <input 
+                                type="date" 
+                                name="paymentDate" 
+                                required 
+                                value="<%= new Date().toISOString().split('T')[0] %>"
+                                class="w-full rounded-lg border border-zinc-200 bg-transparent px-3 py-2 text-sm text-zinc-900 outline-none transition-all focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400"
+                            >
+                        </div>
+
+                        <!-- Reference / Memo Field -->
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-medium text-zinc-700 tracking-tight block">Reference Memo</label>
+                            <input 
+                                type="text" 
+                                name="reference" 
+                                placeholder="e.g. Wk 15 Dues, Mobile Money Receipt ID" 
+                                class="w-full rounded-lg border border-zinc-200 bg-transparent px-3 py-2 text-sm text-zinc-900 outline-none transition-all placeholder:text-zinc-400 focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400"
+                            >
+                        </div>
+                    </div>
+                    
+                    <!-- Form Actions Area -->
+                    <div class="mt-6 pt-4 border-t border-zinc-100 flex justify-end gap-2">
+                        <button type="button" onclick="toggleModal('recordPaymentModal', false)" class="py-2 px-4 border border-zinc-200 rounded-lg text-xs font-medium text-zinc-900 bg-background hover:bg-zinc-50 transition-all focus:outline-none">
+                            Cancel
+                        </button>
+                        <button type="submit" class="py-2 px-4 border border-transparent rounded-lg text-xs font-medium text-primary-foreground bg-primary hover:bg-primary/90 transition-all focus:outline-none shadow-sm">
+                            Post Ledger Entry
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL CONTROLLER SCRIPT ================= -->
+<script>
+    function toggleModal(modalId, show) {
+        const modal = document.getElementById(modalId);
+        if (!modal) return;
+
+        if (show) {
+            // Remove hidden and apply standard flex alignment classes
+            modal.classList.remove('hidden');
+            modal.classList.add('flex', 'items-center', 'justify-center');
+            
+            // Lock background body scroll for premium UI feel
+            document.body.classList.add('overflow-hidden');
+        } else {
+            // Re-apply hidden structure
+            modal.classList.add('hidden');
+            modal.classList.remove('flex', 'items-center', 'justify-center');
+            
+            // Restore background interaction scrolling
+            document.body.classList.remove('overflow-hidden');
+        }
+    }
+
+    // Optional: Close modals instantly if user hits the 'Escape' key
+    window.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            toggleModal('addMemberModal', false);
+            toggleModal('recordPaymentModal', false);
+        }
+    });
+</script>
+
+<%- include('partials/footer') %>

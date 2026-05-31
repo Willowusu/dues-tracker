@@ -1,0 +1,206 @@
+<%- include('partials/header') %>
+
+    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-6">
+
+        <!-- Structural Greeting Header -->
+        <div class="bg-background rounded-xl border border-zinc-200 p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight text-zinc-900">Welcome back, <%= profile.name %>!</h1>
+                <p class="text-xs text-zinc-500 mt-1 font-mono">
+                    Account Framework &bull; Member since <%= new Date(profile.joinDate).toLocaleDateString() %>
+                </p>
+            </div>
+            
+            <!-- Focused Status Balance Widget -->
+            <div class="bg-zinc-50 border border-zinc-200/80 rounded-xl p-4 min-w-[200px] w-full md:w-auto">
+                <p class="text-[10px] font-medium uppercase tracking-wider text-zinc-400 mb-1">Current Ledger Balance</p>
+                <div class="text-2xl font-bold font-mono tracking-tight <%= stats.balanceOwed > 0 ? 'text-rose-600' : 'text-emerald-600' %>">
+                    GH₵<%= stats.balanceOwed.toFixed(2) %>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- Left Sidebar Columns: Micro Metrics & Profile Details -->
+            <div class="lg:col-span-1 space-y-6">
+
+                <!-- Micro Core Performance Metrics -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-background p-5 rounded-xl border border-zinc-200">
+                        <p class="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 mb-1">Weeks Passed</p>
+                        <p class="text-xl font-bold text-zinc-900"><%= stats.weeksPassed %></p>
+                    </div>
+                    <div class="bg-background p-5 rounded-xl border border-zinc-200">
+                        <p class="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 mb-1">Total Billed</p>
+                        <p class="text-xl font-bold font-mono text-zinc-900 text-xs">GH₵<%= stats.totalBilled.toFixed(2) %></p>
+                    </div>
+                    <div class="bg-zinc-900 p-5 rounded-xl border border-transparent col-span-2 flex flex-row items-center justify-between">
+                        <div>
+                            <p class="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 mb-1">Total Contributions</p>
+                            <p class="text-2xl font-bold font-mono text-white text-sm">GH₵<%= stats.totalPaid.toFixed(2) %></p>
+                        </div>
+                        <div class="h-9 w-9 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-400 border border-zinc-700/50">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Detailed Scope Card -->
+                <div class="bg-background rounded-xl border border-zinc-200 overflow-hidden">
+                    <div class="border-b border-zinc-100 px-5 py-4 bg-zinc-50/50 flex items-center justify-between">
+                        <h3 class="text-sm font-semibold text-zinc-900">Profile Parameters</h3>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                            <%= profile.status %>
+                        </span>
+                    </div>
+                    <div class="p-5 space-y-4 text-xs">
+                        <div>
+                            <p class="font-medium text-zinc-400">Legal Identifier</p>
+                            <p class="mt-1 text-sm font-semibold text-zinc-800"><%= profile.name %></p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="font-medium text-zinc-400">Gender</p>
+                                <p class="mt-1 text-zinc-800 font-medium"><%= profile.gender %></p>
+                            </div>
+                            <div>
+                                <p class="font-medium text-zinc-400">Date of Birth</p>
+                                <p class="mt-1 text-zinc-800 font-mono"><%= new Date(profile.dob).toLocaleDateString() %></p>
+                            </div>
+                        </div>
+                          <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="font-medium text-zinc-400">Residential Address</p>
+                            <p class="mt-1 text-zinc-800 font-medium leading-relaxed"><%= profile.residentialAddress %></p>
+                        </div>
+                        <div>
+                            <p class="font-medium text-zinc-400">Previous Church</p>
+                            <p class="mt-1 text-zinc-800 font-medium leading-relaxed"><%= profile.previousChurch %></p>
+                        </div>
+                        </div>
+                         <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="font-medium text-zinc-400">Occupation</p>
+                                <p class="mt-1 text-zinc-800 font-medium"><%= profile.occupation %></p>
+                            </div>
+                            <div>
+                                <p class="font-medium text-zinc-400">Place of Work</p>
+                                <p class="mt-1 text-zinc-800 font-mono"><%= profile.placeOfWork %></p>
+                            </div>
+                        </div>
+                        
+                        <!-- Categorization Metadata Toggles -->
+                        <div class="pt-4 border-t border-zinc-100 grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="font-medium text-zinc-400">Baptized</p>
+                                <p class="mt-1 font-medium text-zinc-700"><%= profile.baptismStatus %></p>
+                            </div>
+                            <div>
+                                <p class="font-medium text-zinc-400">Communicant</p>
+                                <p class="mt-1 font-medium text-zinc-700"><%= profile.communicant %></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Main Column: Unified Payment Ledger History -->
+            <div class="lg:col-span-2">
+                <div class="bg-background rounded-xl border border-zinc-200 h-full flex flex-col overflow-hidden">
+                    <div class="px-5 py-4 border-b border-zinc-100 bg-zinc-50/50 flex justify-between items-center">
+                        <h3 class="text-sm font-semibold text-zinc-900">Historical Statement Logs</h3>
+                        <div class="bg-zinc-100 text-zinc-800 border border-zinc-200/60 px-2.5 py-0.5 rounded font-mono text-[11px] font-medium">
+                            <%= typeof totalPaymentsCount !== 'undefined' ? totalPaymentsCount : payments.length %> Entries
+                        </div>
+                    </div>
+                    
+                    <div class="flex-1 p-0 overflow-x-auto flex flex-col">
+                        <% if (payments && payments.length > 0) { %>
+                            <div class="flex-1">
+                                <table class="min-w-full divide-y divide-zinc-200 text-left">
+                                    <thead class="bg-zinc-50/70 text-[10px] font-medium text-zinc-400 tracking-wider uppercase border-b border-zinc-200">
+                                        <tr>
+                                            <th scope="col" class="px-6 py-3">Timestamp Date</th>
+                                            <th scope="col" class="px-6 py-3">Amount Cleared</th>
+                                            <th scope="col" class="px-6 py-3">Reference Token</th>
+                                            <th scope="col" class="px-6 py-3 text-right">Settlement State</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-zinc-100 text-xs">
+                                        <% payments.forEach(payment => { %>
+                                            <tr class="hover:bg-zinc-50/40 transition-colors">
+                                                <!-- Transaction Timestamp Date -->
+                                                <td class="px-6 py-3.5 whitespace-nowrap text-zinc-500 font-medium">
+                                                    <%= new Date(payment.paymentDate).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) %>
+                                                </td>
+                                                <!-- Amount Rendered -->
+                                                <td class="px-6 py-3.5 whitespace-nowrap font-semibold font-mono text-zinc-900 text-xs">
+                                                    GH₵<%= payment.amountPaid.toFixed(2) %>
+                                                </td>
+                                                <!-- Reference Identifier Component -->
+                                                <td class="px-6 py-3.5 whitespace-nowrap text-zinc-400 max-w-xs truncate font-mono text-[11px]">
+                                                    <%= payment.reference || 'N/A' %>
+                                                </td>
+                                                <!-- Status Verification Label -->
+                                                <td class="px-6 py-3.5 whitespace-nowrap text-right">
+                                                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                                        <span class="h-1 w-1 rounded-full bg-emerald-500"></span>
+                                                        Completed
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        <% }) %>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Integrated Framework Pagination Footer -->
+                            <% if (typeof totalPages !== 'undefined' && totalPages > 1) { %>
+                                <div class="bg-zinc-50/50 px-5 py-3 border-t border-zinc-200 flex items-center justify-between mt-auto">
+                                    <div class="flex-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+                                        <div>
+                                            <p class="text-[11px] text-zinc-500">
+                                                Showing Page <span class="font-semibold text-zinc-900"><%= currentPage %></span> of <span class="font-semibold text-zinc-900"><%= totalPages %></span>
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <nav class="relative z-0 inline-flex rounded-lg shadow-sm overflow-hidden border border-zinc-200" aria-label="Pagination">
+                                                <a href="<%= currentPage > 1 ? '?page=' + (currentPage - 1) : '#' %>"
+                                                    class="relative inline-flex items-center px-3 py-1.5 bg-background text-[11px] font-medium <%= currentPage === 1 ? 'text-zinc-300 pointer-events-none' : 'text-zinc-600 hover:bg-zinc-50' %> transition-colors border-r border-zinc-200"
+                                                >
+                                                    &larr; Prev
+                                                </a>
+
+                                                <a href="<%= currentPage < totalPages ? '?page=' + (currentPage + 1) : '#' %>"
+                                                    class="relative inline-flex items-center px-3 py-1.5 bg-background text-[11px] font-medium <%= (currentPage >= totalPages || totalPages === 0) ? 'text-zinc-300 pointer-events-none' : 'text-zinc-600 hover:bg-zinc-50' %> transition-colors"
+                                                >
+                                                    Next &rarr;
+                                                </a>
+                                            </nav>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% } %>
+                        <% } else { %>
+                            <!-- Fully Styled Empty Ledger Handler State -->
+                            <div class="h-full flex flex-col items-center justify-center p-12 text-center my-auto">
+                                <div class="h-14 w-14 bg-zinc-50 border border-zinc-100 rounded-xl flex items-center justify-center mb-3">
+                                    <svg class="h-6 w-6 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <h4 class="text-sm font-semibold text-zinc-900 mb-0.5">No Payments Logged</h4>
+                                <p class="text-xs text-zinc-400 max-w-xs">When your incoming core membership deposits clear processing, the detailed receipts will instantiate here.</p>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+<%- include('partials/footer') %>

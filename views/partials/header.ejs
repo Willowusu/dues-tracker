@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dues Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        // Injecting the official shadcn/ui neutral palette tokens
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        border: 'hsl(214.3, 31.8%, 91.4%)',
+                        input: 'hsl(214.3, 31.8%, 91.4%)',
+                        ring: 'hsl(215, 20.2%, 65.1%)',
+                        background: 'hsl(0, 0%, 100%)',
+                        foreground: 'hsl(222.2, 84%, 4.9%)',
+                        primary: {
+                            DEFAULT: 'hsl(222.2, 47.4%, 11.2%)',
+                            foreground: 'hsl(210, 40%, 98%)',
+                        },
+                        muted: {
+                            DEFAULT: 'hsl(210, 40%, 96.1%)',
+                            foreground: 'hsl(215.4, 16.3%, 46.9%)',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-[#fafafa] text-foreground min-h-screen flex flex-col antialiased">
+    <!-- Navbar -->
+    <nav class="bg-background border-b border-zinc-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-14 items-center">
+                <div class="flex items-center">
+                    <a href="/" class="flex items-center gap-2">
+                        <svg class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="text-primary font-semibold text-base tracking-tight">DuesTracker</span>
+                    </a>
+                </div>
+                <div class="flex items-center gap-2">
+                    <% if (locals.user) { %>
+                        <% if (locals.user.role === 'admin') { %>
+                            <a href="/admin" class="text-zinc-600 hover:text-primary px-3 py-1.5 rounded-md text-xs font-medium transition-colors">Admin</a>
+                        <% } %>
+                        <a href="/dashboard" class="text-zinc-600 hover:text-primary px-3 py-1.5 rounded-md text-xs font-medium transition-colors">Dashboard</a>
+                        <a href="/logout" class="border border-zinc-200 text-primary hover:bg-zinc-50 px-3 py-1.5 rounded-md text-xs font-medium transition-colors">Logout</a>
+                    <% } else { %>
+                        <a href="/login" class="bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-1.5 rounded-md text-xs font-medium transition-all shadow-sm">Login</a>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <main class="flex-grow flex items-center justify-center p-4 sm:p-6 lg:p-8">

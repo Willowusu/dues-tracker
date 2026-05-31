@@ -1,0 +1,63 @@
+<%- include('partials/header') %>
+
+    <!-- Card Container -->
+    <div class="w-full max-w-[380px] bg-background border border-zinc-200 rounded-xl p-6 sm:p-8 shadow-[0_1px_3px_rgba(0,0,0,0.05)] transition-all">
+        
+        <!-- Card Header -->
+        <div class="flex flex-col items-center space-y-2 text-center mb-6">
+            <!-- Icon with neutral styling -->
+            <div class="flex items-center justify-center h-10 w-10 rounded-lg border border-zinc-200 bg-zinc-50 mb-1">
+                <svg class="h-5 w-5 text-zinc-900" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+            </div>
+            <h2 class="text-xl font-semibold tracking-tight text-zinc-900">Verify OTP</h2>
+            <p class="text-sm text-muted-foreground">
+                Code sent to <span class="font-medium text-zinc-900 font-mono text-xs"><%= phone %></span>
+            </p>
+        </div>
+
+        <!-- Feedback Messages -->
+        <% if (error) { %>
+            <div class="bg-destructive/5 border border-red-200 p-3 mb-4 rounded-lg flex items-start gap-2.5">
+                <svg class="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <p class="text-xs text-red-700 font-medium leading-relaxed">
+                    <%= error %>
+                </p>
+            </div>
+        <% } %>
+
+        <!-- Card Content / Form -->
+        <form action="/verify-otp" method="POST" class="space-y-4">
+            <input type="hidden" name="phone" value="<%= phone %>">
+
+            <div class="space-y-2">
+                <label for="otp" class="sr-only">One Time Password</label>
+                <input 
+                    type="text" 
+                    name="otp" 
+                    id="otp" 
+                    required 
+                    maxlength="6"
+                    pattern="[0-9]*"
+                    inputmode="numeric"
+                    class="block w-full text-center text-xl font-semibold tracking-[0.4em] pl-[0.4em] rounded-lg border border-zinc-200 bg-transparent text-zinc-900 py-2.5 px-3 outline-none transition-all placeholder:text-zinc-300 focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400"
+                    placeholder="000000"
+                >
+            </div>
+
+            <!-- Card Footer Action -->
+            <div class="pt-2">
+                <button 
+                    type="submit"
+                    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2 transition-all shadow-sm"
+                >
+                    Verify & Login
+                </button>
+            </div>
+        </form>
+    </div>
+
+<%- include('partials/footer') %>

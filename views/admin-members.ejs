@@ -1,0 +1,227 @@
+<%- include('partials/header') %>
+
+    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <!-- Back Navigation Link -->
+        <div class="mb-6">
+            <a href="/admin" class="inline-flex items-center text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Dashboard
+            </a>
+        </div>
+
+        <!-- Global Membership Directory Card -->
+        <div class="bg-background rounded-xl border border-zinc-200 shadow-sm overflow-hidden">
+            
+            <!-- Table Header Control Bar -->
+            <div class="px-6 py-5 border-b border-zinc-100 bg-zinc-50/50 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+                <div>
+                    <h2 class="text-lg font-semibold tracking-tight text-zinc-900 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-zinc-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        Full Membership Directory
+                    </h2>
+                    <p class="text-xs text-zinc-500 mt-0.5">Manage and track billing balances across your active ledger.</p>
+                </div>
+
+                <!-- Filters Form -->
+                <form action="/admin/members" method="GET" class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                    <input 
+                        type="text" 
+                        name="search" 
+                        placeholder="Search name or phone..." 
+                        value="<%= search %>"
+                        class="rounded-lg border border-zinc-200 bg-background px-3 py-1.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition-all focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 w-full sm:w-64"
+                    >
+                    <select 
+                        name="status"
+                        class="rounded-lg border border-zinc-200 bg-background px-3 py-1.5 text-sm text-zinc-900 outline-none transition-all focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 w-full sm:w-auto"
+                    >
+                        <option value="">All Statuses</option>
+                        <option value="Active" <%= status === 'Active' ? 'selected' : '' %>>Active</option>
+                        <option value="Inactive" <%= status === 'Inactive' ? 'selected' : '' %>>Inactive</option>
+                    </select>
+                    <button 
+                        type="submit"
+                        class="bg-zinc-900 hover:bg-zinc-800 text-primary-foreground rounded-lg px-4 py-1.5 text-sm font-medium transition-colors shadow-sm whitespace-nowrap"
+                    >
+                        Filter Directory
+                    </button>
+                </form>
+            </div>
+
+            <!-- Desktop Table Layout -->
+            <div class="hidden md:block overflow-x-auto">
+                <table class="min-w-full divide-y divide-zinc-200 text-left">
+                    <thead class="bg-zinc-50 text-xs font-medium text-zinc-500 tracking-wider uppercase">
+                        <tr>
+                            <th scope="col" class="px-6 py-3.5">Member</th>
+                            <th scope="col" class="px-6 py-3.5">Join Date</th>
+                            <th scope="col" class="px-6 py-3.5 text-center">Weeks</th>
+                            <th scope="col" class="px-6 py-3.5 text-right">Total Billed</th>
+                            <th scope="col" class="px-6 py-3.5 text-right">Total Paid</th>
+                            <th scope="col" class="px-6 py-3.5 text-right">Balance Owed</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-background divide-y divide-zinc-200 text-sm">
+                        <% if (membersReport && membersReport.length > 0) { %>
+                            <% membersReport.forEach(member => { %>
+                                <tr class="hover:bg-zinc-50/50 transition-colors">
+                                    <!-- Member Identity Badge Row -->
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-semibold text-zinc-900"><%= member.name %></span>
+                                            <% if (member.status === 'Active') { %>
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/60">Active</span>
+                                            <% } else { %>
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-zinc-100 text-zinc-600 border border-zinc-200/60">Inactive</span>
+                                            <% } %>
+                                        </div>
+                                        <div class="text-xs text-zinc-400 mt-0.5 tracking-tight font-mono">
+                                            <%= member.userId ? member.userId.phone : 'N/A' %>
+                                        </div>
+                                    </td>
+                                    <!-- Join Date -->
+                                    <td class="px-6 py-4 whitespace-nowrap text-zinc-500 font-mono text-xs">
+                                        <%= new Date(member.joinDate).toISOString().split('T')[0] %>
+                                    </td>
+                                    <!-- Weeks Tracked -->
+                                    <td class="px-6 py-4 whitespace-nowrap text-center font-medium text-zinc-700">
+                                        <%= member.computed.weeksPassed %> <span class="text-zinc-400 font-normal text-xs">wks</span>
+                                    </td>
+                                    <!-- Billed Ledger -->
+                                    <td class="px-6 py-4 whitespace-nowrap text-right font-mono text-xs text-zinc-600">
+                                        GH₵<%= member.computed.totalBilled.toFixed(2) %>
+                                    </td>
+                                    <!-- Paid Ledger -->
+                                    <td class="px-6 py-4 whitespace-nowrap text-right font-mono text-xs text-zinc-600">
+                                        GH₵<%= member.computed.totalPaid.toFixed(2) %>
+                                    </td>
+                                    <!-- Remaining Balance Block -->
+                                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                                        <% if (member.computed.balanceOwed > 0) { %>
+                                            <span class="font-semibold font-mono text-xs text-rose-600 bg-rose-50 border border-rose-100 px-2 py-1 rounded">
+                                                GH₵<%= member.computed.balanceOwed.toFixed(2) %>
+                                            </span>
+                                        <% } else { %>
+                                            <span class="text-xs font-medium text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-1 rounded">
+                                                Cleared
+                                            </span>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="6" class="px-6 py-12 text-center text-xs text-zinc-400 tracking-tight">
+                                    No members found matching your search parameters.
+                                </td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Mobile Card Stack View -->
+            <div class="block md:hidden">
+                <% if (membersReport && membersReport.length > 0) { %>
+                    <div class="flex flex-col divide-y divide-zinc-100">
+                        <% membersReport.forEach(member => { %>
+                            <div class="p-5 bg-background space-y-4">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="text-sm font-semibold text-zinc-900"><%= member.name %></h3>
+                                        <p class="text-xs font-mono text-zinc-400 mt-0.5">
+                                            <%= member.userId ? member.userId.phone : 'N/A' %>
+                                        </p>
+                                    </div>
+                                    <% if (member.status === 'Active') { %>
+                                        <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/60">Active</span>
+                                    <% } else { %>
+                                        <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-zinc-100 text-zinc-600 border border-zinc-200/60">Inactive</span>
+                                    <% } %>
+                                </div>
+                                
+                                <div class="grid grid-cols-2 gap-y-2.5 text-xs border-t border-zinc-50 pt-3">
+                                    <div class="text-zinc-400">Join Date</div>
+                                    <div class="text-right font-mono font-medium text-zinc-800">
+                                        <%= new Date(member.joinDate).toISOString().split('T')[0] %>
+                                    </div>
+                                    
+                                    <div class="text-zinc-400">Weeks Tracked</div>
+                                    <div class="text-right font-medium text-zinc-800">
+                                        <%= member.computed.weeksPassed %> wks
+                                    </div>
+                                    
+                                    <div class="text-zinc-400">Total Billed</div>
+                                    <div class="text-right font-mono text-zinc-600">
+                                        GH₵<%= member.computed.totalBilled.toFixed(2) %>
+                                    </div>
+                                    
+                                    <div class="text-zinc-400">Total Paid</div>
+                                    <div class="text-right font-mono text-zinc-600">
+                                        GH₵<%= member.computed.totalPaid.toFixed(2) %>
+                                    </div>
+                                </div>
+                                
+                                <div class="pt-3 border-t border-zinc-100 flex justify-between items-center text-xs">
+                                    <span class="font-medium text-zinc-700">Balance Owed</span>
+                                    <% if (member.computed.balanceOwed > 0) { %>
+                                        <span class="font-semibold font-mono text-rose-600 bg-rose-50 border border-rose-100 px-2.5 py-1 rounded">
+                                            GH₵<%= member.computed.balanceOwed.toFixed(2) %>
+                                        </span>
+                                    <% } else { %>
+                                        <span class="font-medium text-emerald-600 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded">
+                                            Cleared
+                                        </span>
+                                    <% } %>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                <% } else { %>
+                    <div class="p-12 text-center text-xs text-zinc-400 tracking-tight">No members found matching your search parameters.</div>
+                <% } %>
+            </div>
+
+            <!-- UI Pagination Controller -->
+            <% if (typeof totalPages !== 'undefined' && totalPages > 0) { %>
+                <div class="bg-zinc-50/50 px-6 py-4 border-t border-zinc-200 flex items-center justify-between">
+                    <div class="flex-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+                        <div>
+                            <p class="text-xs text-zinc-500">
+                                Page <span class="font-semibold text-zinc-900"><%= currentPage %></span> of <span class="font-semibold text-zinc-900"><%= totalPages %></span>
+                            </p>
+                        </div>
+                        <div>
+                            <nav class="relative z-0 inline-flex rounded-lg shadow-sm -space-x-px w-full sm:w-auto overflow-hidden border border-zinc-200" aria-label="Pagination">
+                                <a href="<%= currentPage > 1 ? '?page=' + (currentPage - 1) + '&search=' + encodeURIComponent(search || '') + '&status=' + encodeURIComponent(status || '') : '#' %>"
+                                    class="relative inline-flex flex-1 sm:flex-none justify-center items-center px-3 py-2 bg-background text-xs font-medium <%= currentPage === 1 ? 'text-zinc-300 pointer-events-none' : 'text-zinc-600 hover:bg-zinc-50' %> transition-colors border-r border-zinc-200"
+                                >
+                                    Previous
+                                </a >
+
+                                <% for (let i = 1; i <= totalPages; i++) { %>
+                                    <a href="?page=<%= i %>&search=<%= encodeURIComponent(search || '') %>&status=<%= encodeURIComponent(status || '') %>"
+                                        class="hidden sm:inline-flex relative items-center px-3.5 py-2 text-xs font-medium border-r border-zinc-200 <%= i === currentPage ? 'z-10 bg-zinc-100 font-semibold text-zinc-900' : 'bg-background text-zinc-500 hover:bg-zinc-50' %> transition-colors"
+                                    >
+                                        <%= i %>
+                                    </a>
+                                <% } %>
+
+                                <a href="<%= currentPage < totalPages ? '?page=' + (currentPage + 1) + '&search=' + encodeURIComponent(search || '') + '&status=' + encodeURIComponent(status || '') : '#' %>"
+                                    class="relative inline-flex flex-1 sm:flex-none justify-center items-center px-3 py-2 bg-background text-xs font-medium <%= currentPage === totalPages ? 'text-zinc-300 pointer-events-none' : 'text-zinc-600 hover:bg-zinc-50' %> transition-colors"
+                                >
+                                    Next
+                                </a>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+<%- include('partials/footer') %>

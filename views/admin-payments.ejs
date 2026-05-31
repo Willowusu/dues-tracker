@@ -1,0 +1,142 @@
+<%- include('partials/header') %>
+
+    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <!-- Back Navigation Link -->
+        <div class="mb-6">
+            <a href="/admin" class="inline-flex items-center text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Dashboard
+            </a>
+        </div>
+
+        <!-- Global Payment Ledger Card -->
+        <div class="bg-background rounded-xl border border-zinc-200 shadow-sm overflow-hidden">
+            
+            <!-- Card Header Control Bar -->
+            <div class="px-6 py-5 border-b border-zinc-100 bg-zinc-50/50 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                <div>
+                    <h2 class="text-lg font-semibold tracking-tight text-zinc-900 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-zinc-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Full Payment Ledger
+                    </h2>
+                    <p class="text-xs text-zinc-500 mt-0.5">Historical sequence of all incoming member contributions.</p>
+                </div>
+            </div>
+
+            <!-- Desktop Table Layout -->
+            <div class="hidden md:block overflow-x-auto">
+                <table class="min-w-full divide-y divide-zinc-200 text-left">
+                    <thead class="bg-zinc-50 text-xs font-medium text-zinc-500 tracking-wider uppercase">
+                        <tr>
+                            <th scope="col" class="px-6 py-3.5">Date</th>
+                            <th scope="col" class="px-6 py-3.5">Member Name</th>
+                            <th scope="col" class="px-6 py-3.5 text-center">Reference Memo</th>
+                            <th scope="col" class="px-6 py-3.5 text-right">Amount Paid</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-background divide-y divide-zinc-200 text-sm">
+                        <% if (recentPayments && recentPayments.length > 0) { %>
+                            <% recentPayments.forEach(payment => { %>
+                                <tr class="hover:bg-zinc-50/50 transition-colors">
+                                    <!-- Transaction Date -->
+                                    <td class="px-6 py-4 whitespace-nowrap text-zinc-500 font-medium">
+                                        <%= new Date(payment.paymentDate).toLocaleDateString(undefined, {
+                                            year: 'numeric', month: 'short', day: 'numeric' }) %>
+                                    </td>
+                                    <!-- Member Account Name -->
+                                    <td class="px-6 py-4 whitespace-nowrap font-semibold text-zinc-900">
+                                        <%= payment.memberName %>
+                                    </td>
+                                    <!-- Memo Stamp Tag -->
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-zinc-100 text-zinc-800 border border-zinc-200/50 max-w-xs truncate">
+                                            <%= payment.reference || 'N/A' %>
+                                        </span>
+                                    </td>
+                                    <!-- Ledger Amount Transacted -->
+                                    <td class="px-6 py-4 whitespace-nowrap text-right font-semibold font-mono text-xs text-zinc-900">
+                                        GH₵<%= payment.amountPaid.toFixed(2) %>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="4" class="px-6 py-12 text-center text-xs text-zinc-400 tracking-tight">
+                                    No payments recorded yet inside this network ledger.
+                                </td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Mobile Card Stack View -->
+            <div class="block md:hidden">
+                <% if (recentPayments && recentPayments.length > 0) { %>
+                    <div class="flex flex-col divide-y divide-zinc-100">
+                        <% recentPayments.forEach(payment => { %>
+                            <div class="p-5 bg-background flex justify-between items-center gap-4">
+                                <div class="space-y-1">
+                                    <p class="text-sm font-semibold text-zinc-900">
+                                        <%= payment.memberName %>
+                                    </p>
+                                    <p class="text-xs text-zinc-400 tracking-tight">
+                                        <%= new Date(payment.paymentDate).toLocaleDateString() %> 
+                                        <span class="text-zinc-300 mx-1">&bull;</span> 
+                                        <span class="font-mono bg-zinc-50 border border-zinc-100 px-1.5 py-0.5 rounded text-[10px] text-zinc-600">Ref: <%= payment.reference || 'None' %></span>
+                                    </p>
+                                </div>
+                                <div class="text-right font-semibold font-mono text-sm text-zinc-900 whitespace-nowrap">
+                                    GH₵<%= payment.amountPaid.toFixed(2) %>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                <% } else { %>
+                    <div class="p-12 text-center text-xs text-zinc-400 tracking-tight">No payments recorded yet inside this network ledger.</div>
+                <% } %>
+            </div>
+
+            <!-- UI Pagination Controller -->
+            <% if (typeof totalPages !== 'undefined' && totalPages > 0) { %>
+                <div class="bg-zinc-50/50 px-6 py-4 border-t border-zinc-200 flex items-center justify-between">
+                    <div class="flex-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+                        <div>
+                            <p class="text-xs text-zinc-500">
+                                Page <span class="font-semibold text-zinc-900"><%= currentPage %></span> of <span class="font-semibold text-zinc-900"><%= totalPages %></span>
+                            </p>
+                        </div>
+                        <div>
+                            <nav class="relative z-0 inline-flex rounded-lg shadow-sm -space-x-px w-full sm:w-auto overflow-hidden border border-zinc-200" aria-label="Pagination">
+                                <a href="<%= currentPage > 1 ? '?page=' + (currentPage - 1) : '#' %>"
+                                    class="relative inline-flex flex-1 sm:flex-none justify-center items-center px-3 py-2 bg-background text-xs font-medium <%= currentPage === 1 ? 'text-zinc-300 pointer-events-none' : 'text-zinc-600 hover:bg-zinc-50' %> transition-colors border-r border-zinc-200"
+                                >
+                                    Previous
+                                </a>
+
+                                <% for (let i = 1; i <= totalPages; i++) { %>
+                                    <a href="?page=<%= i %>"
+                                        class="hidden sm:inline-flex relative items-center px-3.5 py-2 text-xs font-medium border-r border-zinc-200 <%= i === currentPage ? 'z-10 bg-zinc-100 font-semibold text-zinc-900' : 'bg-background text-zinc-500 hover:bg-zinc-50' %> transition-colors"
+                                    >
+                                        <%= i %>
+                                    </a>
+                                <% } %>
+
+                                <a href="<%= currentPage < totalPages ? '?page=' + (currentPage + 1) : '#' %>"
+                                    class="relative inline-flex flex-1 sm:flex-none justify-center items-center px-3 py-2 bg-background text-xs font-medium <%= currentPage === totalPages ? 'text-zinc-300 pointer-events-none' : 'text-zinc-600 hover:bg-zinc-50' %> transition-colors"
+                                >
+                                    Next
+                                </a>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+<%- include('partials/footer') %>
