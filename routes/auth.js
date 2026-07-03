@@ -46,7 +46,7 @@ router.post('/login', async (req, res) => {
                 console.log(`===========================================\n`);
                 return res.redirect(`/verify-otp?phone=${encodeURIComponent(phone)}`);
             }
-            const message = `Your one-time PIN Code is ${otp}. Please type this code in your app to log in.`;
+            const message = `Your one-time verification PIN Code is ${otp}. Do NOT share it with anyone. For help, contact your administrator.`;
 
             const response = await fetch('https://sms.arkesel.com/api/v2/sms/send', {
                 method: 'POST',
