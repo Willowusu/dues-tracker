@@ -366,7 +366,7 @@
                                 <option value="" disabled selected>Choose a member profile...</option>
                                 <% if (locals.allMembersReport && locals.allMembersReport.length > 0) { %>
                                     <% locals.allMembersReport.forEach(member => { %>
-                                        <option value="<%= member.userId %>"><%= member.name %> (<%= member.userId ? member.userId.phone : 'N/A' %>)</option>
+                                        <option value="<%= member.userId._id %>"><%= member.name %> (<%= member.userId ? member.userId.phone : 'N/A' %>)</option>
                                     <% }) %>
                                 <% } %>
                             </select>
