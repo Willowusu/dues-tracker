@@ -52,6 +52,7 @@ router.get('/', async (req, res) => {
         res.render('admin', {
             profiles: allProfiles,
             membersReport: previewMembers,
+            allMembersReport: membersReport,
             recentPayments: recentPaymentsReport,
             success: req.query.success,
             error: req.query.error
