@@ -2,6 +2,19 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 
+// Limit IP to 5 login requests per 15 minutes
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5, 
+    message: 'Too many login attempts from this IP, please try again after 15 minutes',
+    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+    // If you are rendering views instead of JSON:
+    handler: (req, res, next, options) => {
+        res.status(429).render('login', { error: options.message });
+    }
+});
+
 router.get('/', (req, res) => {
     res.render('login', { error: null });
 });
@@ -11,7 +24,7 @@ router.get('/login', (req, res) => {
     res.render('login', { error: null });
 });
 
-router.post('/login', async (req, res) => {
+router.post('/login', loginLimiter, async (req, res) => {
     const { phone } = req.body;
     try {
         let user = await User.findOne({ phone });
@@ -21,6 +34,19 @@ router.post('/login', async (req, res) => {
                 user = new User({ phone: '0000000000', role: 'admin' });
             } else {
                 return res.render('login', { error: 'Phone number not found. Please contact an administrator.' });
+            }
+        }
+
+        // Check if an OTP was sent recently (e.g., within the last 120 seconds)
+        if (user.otpExpires) {
+            const timeUntilExpiry = user.otpExpires.getTime() - Date.now();
+            const timeSinceCreation = (10 * 60 * 1000) - timeUntilExpiry; // 10 mins minus remaining time
+
+            if (timeSinceCreation < 120 * 1000) { // Less than 120 seconds ago
+                const secondsLeft = Math.ceil((60 * 1000 - timeSinceCreation) / 1000);
+                return res.render('login', { 
+                    error: `Please wait ${secondsLeft} seconds before requesting another OTP.` 
+                });
             }
         }
 
