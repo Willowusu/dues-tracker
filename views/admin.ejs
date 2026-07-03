@@ -360,18 +360,17 @@
                 <form action="/admin/record-payment" method="POST" class="p-6 space-y-4">
                     <div class="space-y-4">
                         <!-- Select Member Dropdown -->
-                        <div class="space-y-1.5">
+                       <div class="space-y-1.5">
                             <label class="text-xs font-medium text-zinc-700 tracking-tight block">Select Member *</label>
                             <select name="memberId" required class="w-full rounded-lg border border-zinc-200 bg-transparent px-3 py-2 text-sm text-zinc-900 outline-none transition-all focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400">
                                 <option value="" disabled selected>Choose a member profile...</option>
-                                <% if (locals.membersReport && membersReport.length > 0) { %>
-                                    <% membersReport.forEach(member => { %>
+                                <% if (locals.allMembersReport && locals.allMembersReport.length > 0) { %>
+                                    <% locals.allMembersReport.forEach(member => { %>
                                         <option value="<%= member._id %>"><%= member.name %> (<%= member.userId ? member.userId.phone : 'N/A' %>)</option>
                                     <% }) %>
                                 <% } %>
                             </select>
                         </div>
-
                         <!-- Amount Paid Input -->
                         <div class="space-y-1.5">
                             <label class="text-xs font-medium text-zinc-700 tracking-tight block">Amount Paid (GH₵) *</label>
