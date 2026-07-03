@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const rateLimit = require('express-rate-limit');
 
 // Limit IP to 5 login requests per 15 minutes
 const loginLimiter = rateLimit({
