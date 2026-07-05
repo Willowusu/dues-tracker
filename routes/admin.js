@@ -207,4 +207,95 @@ router.post('/record-payment', async (req, res) => {
     }
 });
 
+
+router.post('/admin/send-sms', async (req, res) => {
+    try {
+        const { recipientType, selectedMembers, message } = req.body;
+        
+        if (!message || message.trim() === "") {
+            req.flash('error', 'Message body cannot be empty.');
+            return res.redirect('/admin');
+        }
+
+        let profiles = [];
+
+        // 1. Collect target profiles with their populated user credentials
+        if (recipientType === 'all') {
+            profiles = await Profile.find({ status: 'Active' }).populate('userId');
+        } else {
+            if (!selectedMembers) {
+                req.flash('error', 'No members were selected for delivery.');
+                return res.redirect('/admin');
+            }
+            const targetUserIds = Array.isArray(selectedMembers) ? selectedMembers : [selectedMembers];
+            profiles = await Profile.find({ userId: { $in: targetUserIds } }).populate('userId');
+        }
+
+        let sentCount = 0;
+
+        // 2. Loop and transmit messages
+        for (const profile of profiles) {
+            if (!profile.userId || !profile.userId.phone) continue;
+
+            const rawPhone = profile.userId.phone.trim();
+            if (rawPhone === '0000000000') {
+                console.log(`[SIMULATED SMS DROPPED] Skipping system admin phone track.`);
+                continue;
+            }
+
+            // Standardize local Ghanaian formats (e.g., 024xxxxxxx -> 23324xxxxxxx)
+            let formattedPhone = rawPhone;
+            if (formattedPhone.startsWith('0') && formattedPhone.length === 10) {
+                formattedPhone = '233' + formattedPhone.substring(1);
+            }
+
+            // Slice out the first name parameter cleanly
+            const firstName = profile.name ? profile.name.trim().split(' ')[0] : 'Member';
+
+            // Swap out structural context parameters
+            let tailoredMessage = message.replace(/{first_name}/g, firstName);
+
+            // Hard constraint validation cap
+            if (tailoredMessage.length > 160) {
+                tailoredMessage = tailoredMessage.slice(0, 160);
+            }
+
+            try {
+                const response = await fetch('https://sms.arkesel.com/api/v2/sms/send', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'api-key': process.env.ARKESEL_API_KEY
+                    },
+                    body: JSON.stringify({
+                        sender: 'EC-YPG',
+                        message: tailoredMessage,
+                        recipients: [formattedPhone]
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    console.error(`Failed to dispatch message to ${formattedPhone} (HTTP Error):`, data);
+                } else if (data.status !== 'success') {
+                    console.error(`Arkesel API rejected dispatch to ${formattedPhone}:`, data);
+                } else {
+                    sentCount++;
+                }
+            } catch (smsErr) {
+                console.error(`Network or Execution error via Arkesel for ${formattedPhone}:`, smsErr);
+            }
+        }
+
+        req.flash('success', `SMS system processing complete. Successfully broadcasted to ${sentCount} members.`);
+        res.redirect('/admin');
+
+    } catch (error) {
+        console.error('Fatal Outbound System Failure:', error);
+        req.flash('error', 'Internal engine error handling communication sequence.');
+        res.redirect('/admin');
+    }
+});
+
 module.exports = router;

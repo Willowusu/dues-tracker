@@ -9,6 +9,11 @@
             </div>
             <!-- TOP ACTION HUB (Mobile-First Header) -->
             <div class="w-full sm:w-auto flex flex-col min-[400px]:flex-row gap-2">
+                <button type="button" onclick="toggleModal('sendSmsModal', true)"
+                    class="w-full sm:w-auto inline-flex items-center justify-center py-2 px-4 border border-zinc-200 rounded-lg text-xs font-medium text-zinc-900 bg-background hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2 transition-all shadow-sm">
+                    <svg class="w-3.5 h-3.5 mr-1.5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                    Send SMS Alert
+                </button>
                 <button type="button" onclick="toggleModal('addMemberModal', true)"
                     class="w-full sm:w-auto inline-flex items-center justify-center py-2 px-4 border border-transparent rounded-lg text-xs font-medium text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2 transition-all shadow-sm">
                     <svg class="w-3.5 h-3.5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
@@ -428,6 +433,97 @@
         </div>
     </div>
 
+     <!-- Send SMS Modal -->
+    <div id="sendSmsModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-zinc-950/40 backdrop-blur-[2px] transition-opacity" aria-hidden="true" onclick="toggleModal('sendSmsModal', false)"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+            <div class="inline-block align-bottom bg-background border border-zinc-200 rounded-xl text-left overflow-hidden shadow-lg transform transition-all sm:my-8 sm:align-middle sm:max-w-md w-full">
+                <!-- Modal Head -->
+                <div class="px-6 py-4 border-b border-zinc-100 flex justify-between items-center">
+                    <h3 class="text-base font-semibold tracking-tight text-zinc-900">Dispatch Broadcast SMS</h3>
+                    <button type="button" onclick="toggleModal('sendSmsModal', false)" class="text-zinc-400 hover:text-zinc-900 transition-colors focus:outline-none">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Modal Body -->
+                <form action="/admin/send-sms" method="POST" class="p-6 space-y-4">
+                    <!-- Target Selection Logic -->
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-medium text-zinc-700 tracking-tight block">Recipients *</label>
+                        <div class="flex gap-4 mb-2">
+                            <label class="inline-flex items-center text-xs text-zinc-800 cursor-pointer">
+                                <input type="radio" name="recipientType" value="all" checked onclick="toggleSmsRecipientSelect(false)" class="text-zinc-900 focus:ring-zinc-950 border-zinc-300 mr-1.5">
+                                All Members
+                            </label>
+                            <label class="inline-flex items-center text-xs text-zinc-800 cursor-pointer">
+                                <input type="radio" name="recipientType" value="selected" onclick="toggleSmsRecipientSelect(true)" class="text-zinc-900 focus:ring-zinc-950 border-zinc-300 mr-1.5">
+                                Select Custom
+                            </label>
+                        </div>
+                        
+                        <!-- Multi-select list -->
+                        <div id="smsRecipientContainer" class="hidden border border-zinc-200 rounded-lg max-h-32 overflow-y-auto p-2 bg-zinc-50/50 space-y-1">
+                            <% if (locals.allMembersReport && locals.allMembersReport.length > 0) { %>
+                                <% locals.allMembersReport.forEach(member => { %>
+                                    <label class="flex items-center text-xs text-zinc-700 hover:bg-zinc-100 p-1 rounded transition-colors cursor-pointer">
+                                        <input type="checkbox" name="selectedMembers" value="<%= member.userId._id %>" class="rounded text-zinc-900 border-zinc-300 focus:ring-zinc-950 mr-2">
+                                        <%= member.name %> (<%= member.userId ? member.userId.phone : 'N/A' %>)
+                                    </label>
+                                <% }) %>
+                            <% } else if (locals.membersReport && membersReport.length > 0) { %>
+                                <% membersReport.forEach(member => { %>
+                                    <label class="flex items-center text-xs text-zinc-700 hover:bg-zinc-100 p-1 rounded transition-colors cursor-pointer">
+                                        <input type="checkbox" name="selectedMembers" value="<%= member.userId ? member.userId._id : '' %>" class="rounded text-zinc-900 border-zinc-300 focus:ring-zinc-950 mr-2">
+                                        <%= member.name %>
+                                    </label>
+                                <% }) %>
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <!-- Message Body Textarea -->
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between items-center">
+                            <label class="text-xs font-medium text-zinc-700 tracking-tight block">Message Body *</label>
+                            <span class="text-[10px] text-zinc-400">Use <code class="bg-zinc-100 text-zinc-800 px-1 rounded">{first_name}</code></span>
+                        </div>
+                        <textarea 
+                            id="smsTextArea"
+                            name="message" 
+                            required 
+                            maxlength="160" 
+                            rows="4"
+                            placeholder="Hello {first_name}, this is a notification regarding your balance status..." 
+                            oninput="updateSmsCharacterCounter()"
+                            class="w-full rounded-lg border border-zinc-200 bg-transparent px-3 py-2 text-sm text-zinc-900 outline-none transition-all placeholder:text-zinc-400 focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 resize-none"
+                        ></textarea>
+                        
+                        <!-- Live character tracking footprint -->
+                        <div class="flex justify-between items-center text-[11px] text-muted-foreground px-0.5">
+                            <span id="smsCharacterCounter">0 / 160 characters</span>
+                            <span id="smsBalancePreviewHint" class="hidden text-emerald-600 font-medium">Dynamic tags resolved dynamically.</span>
+                        </div>
+                    </div>
+
+                    <!-- Actions Area Footer -->
+                    <div class="mt-6 pt-4 border-t border-zinc-100 flex justify-end gap-2">
+                        <button type="button" onclick="toggleModal('sendSmsModal', false)" class="py-2 px-4 border border-zinc-200 rounded-lg text-xs font-medium text-zinc-900 bg-background hover:bg-zinc-50 transition-all focus:outline-none">
+                            Cancel
+                        </button>
+                        <button type="submit" class="py-2 px-4 border border-transparent rounded-lg text-xs font-medium text-primary-foreground bg-primary hover:bg-primary/90 transition-all focus:outline-none shadow-sm">
+                            Transmit Message
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- ================= MODAL CONTROLLER SCRIPT ================= -->
 <script>
     function toggleModal(modalId, show) {
@@ -458,6 +554,30 @@
             toggleModal('recordPaymentModal', false);
         }
     });
+
+    function toggleSmsRecipientSelect(showCustomList) {
+            const listContainer = document.getElementById('smsRecipientContainer');
+            if (showCustomList) {
+                listContainer.classList.remove('hidden');
+            } else {
+                listContainer.classList.add('hidden');
+            }
+        }
+
+        function updateSmsCharacterCounter() {
+            const textarea = document.getElementById('smsTextArea');
+            const counter = document.getElementById('smsCharacterCounter');
+            const hint = document.getElementById('smsBalancePreviewHint');
+            const length = textarea.value.length;
+            
+            counter.innerText = `${length} / 160 characters`;
+            
+            if (textarea.value.includes('{first_name}')) {
+                hint.classList.remove('hidden');
+            } else {
+                hint.classList.add('hidden');
+            }
+        }
 </script>
 
 <%- include('partials/footer') %>
