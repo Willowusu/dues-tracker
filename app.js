@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const path = require('path');
+const flash = require('connect-flash');
 const MongoStore = require('connect-mongo').default;
 require('dotenv').config();
 
@@ -42,6 +43,14 @@ app.use(session({
         httpOnly: true 
     }
 }));
+
+app.use(flash());
+
+app.use((req, res, next) => {
+    res.locals.success = req.flash('success');
+    res.locals.error = req.flash('error');
+    next();
+});
 
 // 5. Context Middleware (Must be AFTER session, but BEFORE routes)
 app.use((req, res, next) => {
