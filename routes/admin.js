@@ -208,7 +208,7 @@ router.post('/record-payment', async (req, res) => {
 });
 
 
-router.post('/admin/send-sms', async (req, res) => {
+router.post('/send-sms', async (req, res) => {
     try {
         const { recipientType, selectedMembers, message } = req.body;
         
