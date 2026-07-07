@@ -289,12 +289,12 @@ router.post('/send-sms', async (req, res) => {
         }
 
         req.flash('success', `SMS system processing complete. Successfully broadcasted to ${sentCount} members.`);
-        res.redirect('/admin');
+        res.redirect(`/admin?success=SMS+system+processing+complete.+Successfully+broadcasted+to+${sentCount}+members.`);
 
     } catch (error) {
         console.error('Fatal Outbound System Failure:', error);
         req.flash('error', 'Internal engine error handling communication sequence.');
-        res.redirect('/admin');
+        res.redirect('/admin?error=Internal+engine+error+handling+communication+sequence.');
     }
 });
 
